@@ -19,8 +19,11 @@ describe("Ballot - Initialization", function () {
         console.log("ballot deployed at:" + ballot.address);
         expect((await ballot.chairman())).to.equal(owner.address);
         expect((await ballot.proposals(0))["name"]).to.equal("candidate1");
+        expect((await ballot.proposals(0))["voteCount"]).to.equal(0);
         expect((await ballot.proposals(1))["name"]).to.equal("candidate2");
+        expect((await ballot.proposals(1))["voteCount"]).to.equal(0);
         expect((await ballot.proposals(2))["name"]).to.equal("candidate3");
+        expect((await ballot.proposals(2))["voteCount"]).to.equal(0);
 
         expect((await ballot.voters(addr1.address))["weight"]).to.equal(0);
         expect((await ballot.voters(addr2.address))["weight"]).to.equal(0);
@@ -72,10 +75,22 @@ describe("Ballot - Voting", function () {
         await ballot.abilityToVote(addr1.address);
         await ballot.abilityToVote(addr2.address);
         await ballot.abilityToVote(addr3.address);
+
+        expect((await ballot.voters(addr1.address))["hasVoted"]).to.equal(false);
+        expect((await ballot.voters(addr2.address))["hasVoted"]).to.equal(false);
+        expect((await ballot.voters(addr3.address))["hasVoted"]).to.equal(false);
         
         await ballot.connect(addr1).vote(0);
+        expect((await ballot.voters(addr1.address))["hasVoted"]).to.equal(true);
+        expect((await ballot.voters(addr1.address))["votedProposal"]).to.equal(0);
+
         await ballot.connect(addr2).vote(1);
+        expect((await ballot.voters(addr2.address))["hasVoted"]).to.equal(true);
+        expect((await ballot.voters(addr2.address))["votedProposal"]).to.equal(1);
+
         await ballot.connect(addr3).vote(1);
+        expect((await ballot.voters(addr3.address))["hasVoted"]).to.equal(true);
+        expect((await ballot.voters(addr3.address))["votedProposal"]).to.equal(1);
 
         expect((await ballot.winningProposal())).to.equal(1);
         expect((await ballot.winnerProposalName())).to.equal("candidate2");
@@ -95,11 +110,10 @@ describe("Ballot - Voting", function () {
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
-        await ballot.abilityToVote(addr2.address);
-        await ballot.abilityToVote(addr3.address);
         
         await ballot.connect(addr1).vote(0);
-        await expect(await ballot.connect(addr1).vote(0)).to.be.revertedWith("Already voted!");
+        await expect(ballot.connect(addr1).vote(0)).to.be.revertedWith("Already voted!");
+
     });
 
     it("should return an error if an user try to vote for an unknown proposal", async function () {
@@ -119,7 +133,7 @@ describe("Ballot - Voting", function () {
         await ballot.abilityToVote(addr2.address);
         await ballot.abilityToVote(addr3.address);
         
-        await expect(await ballot.connect(addr1).vote(1000)).to.be.revertedWith("The proposal does not exist!");
+        await expect(ballot.connect(addr1).vote(1000)).to.be.revertedWith("The proposal does not exist!");
     });
 
     it("should return an error if a unexpected address try to vote", async function () {
@@ -160,6 +174,10 @@ describe("Ballot - Delegation", function () {
         
         await ballot.connect(addr1).delegate(addr3.address);
         await ballot.connect(addr2).delegate(addr3.address);
+
+        expect((await ballot.voters(addr1.address))["delegate"]).to.equal(addr3.address);
+        expect((await ballot.voters(addr2.address))["delegate"]).to.equal(addr3.address);
+
 
         expect((await ballot.voters(addr3.address))["weight"]).to.equal(3);
 
