@@ -1,5 +1,3 @@
-import { TestsAccounts } from "remix_tests.sol";
-
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
@@ -15,7 +13,6 @@ describe("Ballot - Initialization", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
         expect((await ballot.chairman())).to.equal(owner.address);
         expect((await ballot.proposals(0))["name"]).to.equal("candidate1");
@@ -44,7 +41,6 @@ describe("Ballot - Authorization", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -69,7 +65,6 @@ describe("Ballot - Voting", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -106,7 +101,6 @@ describe("Ballot - Voting", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -126,7 +120,6 @@ describe("Ballot - Voting", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -146,7 +139,6 @@ describe("Ballot - Voting", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
         
         await expect(ballot.connect(addr1).vote(1)).to.be.revertedWith("Has no right to vote!");
@@ -165,7 +157,6 @@ describe("Ballot - Delegation", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -196,7 +187,6 @@ describe("Ballot - Delegation", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -221,7 +211,6 @@ describe("Ballot - Delegation", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
@@ -241,7 +230,6 @@ describe("Ballot - Delegation", function () {
 
         const Ballot = await ethers.getContractFactory("Ballot");
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
-        await ballot.deployed();
         console.log("ballot deployed at:" + ballot.address);
 
         await ballot.abilityToVote(addr1.address);
