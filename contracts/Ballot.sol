@@ -9,6 +9,12 @@ contract Ballot {
 
     address public chairman;
 
+    error AlreadyVoted();
+    error OnlyTheChairmanCanGiveTheAbilityToVote();
+    error ProposalDoesNotExist();
+    error HasNoRightToVote();
+    error CannotDelegateToYourself();
+
     struct Voter {
         bool hasVoted;
         address delegate;
@@ -41,9 +47,9 @@ contract Ballot {
     function vote(uint proposalIndex)  external {
         Voter storage sender = voters[msg.sender];
         
-        require(!sender.hasVoted, "Already voted!");
-        require(sender.weight > 0, "Has no right to vote!");
-        require(proposalIndex < proposals.length, "The proposal does not exist!");
+        require(!sender.hasVoted, AlreadyVoted());
+        require(sender.weight > 0, HasNoRightToVote());
+        require(proposalIndex < proposals.length, ProposalDoesNotExist());
         sender.hasVoted = true;    
         sender.votedProposal = proposalIndex; 
 
@@ -51,9 +57,9 @@ contract Ballot {
     }
 
     function abilityToVote(address voter) public {
-        require(msg.sender == chairman, "Only the chairman can give the ability to vote!");
-        require(!voters[voter].hasVoted, "The voter has already voted!");
-        require(voters[voter].weight == 0, "The voter can already vote!");
+        require(msg.sender == chairman, OnlyTheChairmanCanGiveTheAbilityToVote());
+        require(!voters[voter].hasVoted, AlreadyVoted());
+        require(voters[voter].weight == 0, AlreadyVoted());
         voters[voter].weight = 1;
     }
 
@@ -69,12 +75,12 @@ contract Ballot {
 
     function delegate(address delegateAddress) external {
         Voter storage voter = voters[msg.sender];
-        require(!voter.hasVoted, "You have already voted!");
-        require(delegateAddress != msg.sender, "You can't delegate to yourself!");
+        require(!voter.hasVoted, AlreadyVoted());
+        require(delegateAddress != msg.sender, CannotDelegateToYourself());
 
         while(voters[delegateAddress].delegate != address(0)) {
             delegateAddress = voters[delegateAddress].delegate;
-            require(delegateAddress != msg.sender, "You can't delegate to yourself!");
+            require(delegateAddress != msg.sender, CannotDelegateToYourself());
         }
 
         voter.hasVoted = true;

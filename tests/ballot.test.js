@@ -51,6 +51,22 @@ describe("Ballot - Authorization", function () {
         expect((await ballot.voters(addr1.address))["votedProposal"]).to.equal("0x0000000000000000000000000000000000000000");
     });
 
+    it("should return an error if an user other than the owner try to give the ability to vote", async function () {
+        const proposalNames = [];
+        proposalNames.push("candidate1");
+        proposalNames.push("candidate2");
+        proposalNames.push("candidate3");
+
+        const [owner, addr1, addr2, addr3] = await ethers.getSigners();
+
+        const Ballot = await ethers.getContractFactory("Ballot");
+        const ballot = await Ballot.connect(owner).deploy(proposalNames);
+        console.log("ballot deployed at:" + ballot.address);
+
+        await expect(ballot.connect(addr1).abilityToVote(addr2.address)).to.be.revertedWithCustomError(ballot, "OnlyTheChairmanCanGiveTheAbilityToVote");
+
+    });
+
 });
 
 
@@ -106,7 +122,7 @@ describe("Ballot - Voting", function () {
         await ballot.abilityToVote(addr1.address);
         
         await ballot.connect(addr1).vote(0);
-        await expect(ballot.connect(addr1).vote(0)).to.be.revertedWith("Already voted!");
+        await expect(ballot.connect(addr1).vote(0)).to.be.revertedWithCustomError(ballot, "AlreadyVoted");
 
     });
 
@@ -126,7 +142,7 @@ describe("Ballot - Voting", function () {
         await ballot.abilityToVote(addr2.address);
         await ballot.abilityToVote(addr3.address);
         
-        await expect(ballot.connect(addr1).vote(1000)).to.be.revertedWith("The proposal does not exist!");
+        await expect(ballot.connect(addr1).vote(1000)).to.be.revertedWithCustomError(ballot, "ProposalDoesNotExist");
     });
 
     it("should return an error if a unexpected address try to vote", async function () {
@@ -141,7 +157,7 @@ describe("Ballot - Voting", function () {
         const ballot = await Ballot.connect(owner).deploy(proposalNames);
         console.log("ballot deployed at:" + ballot.address);
         
-        await expect(ballot.connect(addr1).vote(1)).to.be.revertedWith("Has no right to vote!");
+        await expect(ballot.connect(addr1).vote(1)).to.be.revertedWithCustomError(ballot, "HasNoRightToVote");
     });
 });
 
@@ -217,7 +233,7 @@ describe("Ballot - Delegation", function () {
         await ballot.abilityToVote(addr2.address);
         await ballot.abilityToVote(addr3.address);
 
-        await expect(ballot.connect(addr1).delegate(addr1.address)).to.be.revertedWith("You can't delegate to yourself!");
+        await expect(ballot.connect(addr1).delegate(addr1.address)).to.be.revertedWithCustomError(ballot, "CannotDelegateToYourself");
     });
 
     it("should return an error if there is a delegation loop", async function () {
@@ -238,7 +254,7 @@ describe("Ballot - Delegation", function () {
 
         await ballot.connect(addr1).delegate(addr3.address);
         await ballot.connect(addr2).delegate(addr3.address);
-        await expect(ballot.connect(addr3).delegate(addr1.address)).to.be.revertedWith("You can't delegate to yourself!");
+        await expect(ballot.connect(addr3).delegate(addr1.address)).to.be.revertedWithCustomError(ballot, "CannotDelegateToYourself");
     });
 
 });
