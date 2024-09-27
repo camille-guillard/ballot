@@ -1,6 +1,7 @@
 {
     "BallotModule": {
-      "proposalNames": ["candidat1", "candidat2"]
+      "proposalNames": ["candidat1", "candidat2"],
+      "votingPeriodInMinutes": 10080
     }
   }
   

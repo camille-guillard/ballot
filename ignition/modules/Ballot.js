@@ -5,8 +5,11 @@ const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
 module.exports = buildModule("BallotModule", (m) => {
   const proposalNames = m.getParameter("proposalNames", []);
+  const votingPeriodInMinutes = m.getParameter("votingPeriodInMinutes", 10);
 
-  const ballot = m.contract("Ballot", [proposalNames]);
+  const ballotContract = m.contract("Ballot", [proposalNames, votingPeriodInMinutes], { id: "artemis" });
 
-  return { ballot };
+  console.log("Contract deployed address : " + ballotContract.address);
+
+  return { ballotContract };
 });
